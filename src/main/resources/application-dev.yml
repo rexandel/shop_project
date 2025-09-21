@@ -1,0 +1,34 @@
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  application:
+    name: shop_project
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/Marketplace
+    username: postgres
+    password: 2012
+    hikari:
+      maximum-pool-size: 10
+      idle-timeout: 300000        # 300 секунд
+      keepalive-time: 300000      # 300 секунд
+      pool-name: HikariPool
+  flyway:
+    url: jdbc:postgresql://localhost:5432/Marketplace
+    user: postgres
+    password: 2012
+    locations: classpath:db/migration
+    enabled: true
+    baseline-on-migrate: true
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update   # на проде лучше "validate" или "none"
+    show-sql: true       # покажет SQL-запросы в консоли
+    properties:
+      hibernate.format_sql: true
+      hibernate.jdbc.batch_size: 50   # batch insert/update
+      hibernate.order_inserts: true
+      hibernate.order_updates: true
