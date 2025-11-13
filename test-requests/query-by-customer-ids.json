@@ -1,0 +1,6 @@
+{
+  "customerIds": [123, 456],
+  "limit": 20,
+  "offset": 0
+}
+

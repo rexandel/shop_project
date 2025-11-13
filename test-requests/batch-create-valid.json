@@ -1,0 +1,45 @@
+{
+  "orders": [
+    {
+      "customerId": 123,
+      "deliveryAddress": "Краснодар, ул. Ставропольская 205",
+      "totalPriceCents": 18000,
+      "totalPriceCurrency": "RUB",
+      "orderItems": [
+        {
+          "productId": 4,
+          "quantity": 2,
+          "productTitle": "Коврик для мышки",
+          "productUrl": "https://ozon.ru/item/12332454",
+          "priceCents": 9000,
+          "priceCurrency": "RUB"
+        }
+      ]
+    },
+    {
+      "customerId": 456,
+      "deliveryAddress": "Москва, ул. Ленина 10",
+      "totalPriceCents": 25000,
+      "totalPriceCurrency": "RUB",
+      "orderItems": [
+        {
+          "productId": 5,
+          "quantity": 1,
+          "productTitle": "Клавиатура механическая",
+          "productUrl": "https://ozon.ru/item/12332455",
+          "priceCents": 15000,
+          "priceCurrency": "RUB"
+        },
+        {
+          "productId": 6,
+          "quantity": 2,
+          "productTitle": "Мышь беспроводная",
+          "productUrl": "https://ozon.ru/item/12332456",
+          "priceCents": 5000,
+          "priceCurrency": "RUB"
+        }
+      ]
+    }
+  ]
+}
+

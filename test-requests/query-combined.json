@@ -1,0 +1,7 @@
+{
+  "ids": [1, 2],
+  "customerIds": [123],
+  "limit": 5,
+  "offset": 0
+}
+
