@@ -1,7 +1,18 @@
-FROM openjdk:17-jdk-slim
+# Простой вариант - собираем локально, в Docker только запускаем
+# Для сборки локально выполните: ./gradlew build -x test
+FROM debian:bullseye-slim
+
+# Устанавливаем Java 17 из пакетов Debian
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    openjdk-17-jre-headless \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
-COPY . .
-RUN chmod +x ./gradlew && ./gradlew build -x test --no-daemon
-RUN cp build/libs/shop_project-0.0.1-SNAPSHOT.jar app.jar
+
+# Копируем собранный jar (соберите локально: ./gradlew build -x test)
+COPY build/libs/shop_project-0.0.1-SNAPSHOT.jar app.jar
+
 EXPOSE 8080
-CMD ["java", "-jar", "app.jar"]
+
+ENTRYPOINT ["java", "-jar", "app.jar"]

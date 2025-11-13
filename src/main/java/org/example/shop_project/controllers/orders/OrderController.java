@@ -12,7 +12,6 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.SQLException;
 import java.util.Map;
 
 @Tag(name = "OrderController", description = "CRUD операции над заказами")
@@ -36,8 +35,9 @@ public class OrderController {
             for (V1CreateOrderRequest.Order order : request.getOrders()) {
                 validatorFactory.getOrderValidator().validateOrder(order);
             }
-            
+
             V1CreateOrderResponse response = orderService.createOrders(request);
+
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
