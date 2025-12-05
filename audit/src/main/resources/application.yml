@@ -29,4 +29,7 @@ spring:
           initial-interval: 3000
           multiplier: 1.5
 
+server:
+  port: 8081
+
 

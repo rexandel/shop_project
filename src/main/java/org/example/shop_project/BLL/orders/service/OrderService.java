@@ -18,6 +18,8 @@ import org.example.shop_project.DTO.requests.V1CreateOrderRequest;
 import org.example.shop_project.DTO.requests.V1QueryOrdersRequest;
 import org.example.shop_project.DTO.responses.V1CreateOrderResponse;
 import org.example.shop_project.DTO.responses.V1QueryOrdersResponse;
+import org.example.shop_project.rabbit.RabbitMqProducer;
+import org.example.shop_project.rabbit.message.OrderCreatedMessage;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,11 +28,12 @@ public class OrderService {
 
   private final IOrderRepository orderRepository;
   private final IOrderItemRepository orderItemRepository;
+  private final RabbitMqProducer rabbitMqProducer;
 
-  public OrderService(
-      IOrderRepository orderRepository, IOrderItemRepository orderItemRepository) {
+  public OrderService(IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, RabbitMqProducer rabbitMqProducer) {
     this.orderRepository = orderRepository;
     this.orderItemRepository = orderItemRepository;
+    this.rabbitMqProducer = rabbitMqProducer;
   }
 
   @Transactional
@@ -76,6 +79,8 @@ public class OrderService {
     }
 
     orderItemRepository.bulkInsert(items);
+    List<OrderCreatedMessage> messages = convertOrdersToMessages(orders, items);
+    rabbitMqProducer.publishOrderCreated(messages);
 
     V1CreateOrderResponse response = new V1CreateOrderResponse();
     List<V1CreateOrderResponse.Order> responseOrders =
@@ -232,4 +237,33 @@ public class OrderService {
             })
         .toList();
   }
+
+    private List<OrderCreatedMessage> convertOrdersToMessages(List<Order> orders, List<OrderItem> items) {
+        return orders.stream().map(order -> {
+            OrderCreatedMessage message = new OrderCreatedMessage();
+            message.setId(order.getId());
+            message.setCustomerId(order.getCustomerId());
+            message.setDeliveryAddress(order.getDeliveryAddress());
+            message.setTotalPriceCents(order.getTotalPriceCents());
+            message.setTotalPriceCurrency(order.getTotalPriceCurrency());
+
+            List<OrderCreatedMessage.OrderItemMessage> itemMessages = items.stream()
+                    .filter(item -> item.getOrder().getId().equals(order.getId()))
+                    .map(item -> {
+                        OrderCreatedMessage.OrderItemMessage itemMsg = new OrderCreatedMessage.OrderItemMessage();
+                        itemMsg.setId(item.getId());
+                        itemMsg.setProductId(item.getProductId());
+                        itemMsg.setProductTitle(item.getProductTitle());
+                        itemMsg.setProductUrl(item.getProductUrl());
+                        itemMsg.setQuantity(item.getQuantity());
+                        itemMsg.setPriceCents(item.getPriceCents());
+                        itemMsg.setPriceCurrency(item.getPriceCurrency());
+                        return itemMsg;
+                    })
+                    .toList();
+
+            message.setOrderItems(itemMessages);
+            return message;
+        }).toList();
+    }
 }

@@ -1,17 +1,14 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.5.6'
-	id 'io.spring.dependency-management' version '1.1.7'
+	id 'org.springframework.boot' version '3.2.0'
+	id 'io.spring.dependency-management' version '1.1.4'
 }
 
 group = 'org.example'
 version = '0.0.1-SNAPSHOT'
-description = 'shop_project'
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
-	}
+	sourceCompatibility = '17'
 }
 
 repositories {
@@ -19,23 +16,45 @@ repositories {
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-amqp'
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	// Spring Boot Starters
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.5'
-	implementation 'org.flywaydb:flyway-core'
-	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
-	runtimeOnly 'org.flywaydb:flyway-database-postgresql:11.13.0'
-	implementation 'org.postgresql:postgresql:42.6.0'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.springframework.amqp:spring-rabbit-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-}
+	implementation 'org.springframework.boot:spring-boot-starter-amqp'
 
+	// Database
+	implementation 'org.flywaydb:flyway-core'
+	runtimeOnly 'org.postgresql:postgresql'
+
+	// OpenAPI/Swagger
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
+
+	// JSON
+	implementation 'com.fasterxml.jackson.core:jackson-databind'
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+	implementation 'com.google.code.gson:gson'
+
+	// Lombok
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	// Testing
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testCompileOnly 'org.projectlombok:lombok'
+	testAnnotationProcessor 'org.projectlombok:lombok'
+}
 
 tasks.named('test') {
 	useJUnitPlatform()
-	enabled = false
+}
+
+// Задача для сборки аудит модуля отдельно
+task buildAudit(type: Exec) {
+	workingDir 'audit'
+	commandLine '../gradlew', 'bootJar', '-x', 'test'
+}
+
+// Общая задача сборки
+task buildAll {
+	dependsOn bootJar, buildAudit
 }
