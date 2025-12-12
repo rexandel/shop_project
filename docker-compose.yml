@@ -59,7 +59,9 @@ services:
 
   # ОСНОВНОЕ приложение (shop_project)
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: shop/Dockerfile
     environment:
       SPRING_PROFILES_ACTIVE: dev
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/Marketplace
@@ -72,6 +74,8 @@ services:
       - "8080:8080"
     depends_on:
       postgres:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     networks:
       - app-network
@@ -91,6 +95,8 @@ services:
       - "8081:8081"
     depends_on:
       postgres:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     networks:
       - app-network

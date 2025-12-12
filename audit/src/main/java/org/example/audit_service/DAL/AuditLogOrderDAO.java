@@ -1,5 +1,6 @@
 package org.example.audit_service.DAL;
 
+import lombok.RequiredArgsConstructor;
 import org.example.audit_service.model.AuditLogOrder;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -10,12 +11,9 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
+@RequiredArgsConstructor
 public class AuditLogOrderDAO {
     private final JdbcTemplate jdbcTemplate;
-
-    public AuditLogOrderDAO(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     public Optional<AuditLogOrder> findById(Long id) {
         String sql = "SELECT * FROM audit_log_order WHERE id = ?";

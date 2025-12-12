@@ -1,6 +1,6 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.2.0'
+	id 'org.springframework.boot' version '3.2.0' apply false
 	id 'io.spring.dependency-management' version '1.1.4'
 }
 
@@ -15,37 +15,25 @@ repositories {
 	mavenCentral()
 }
 
-dependencies {
-	// Spring Boot Starters
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	implementation 'org.springframework.boot:spring-boot-starter-amqp'
-
-	// Database
-	implementation 'org.flywaydb:flyway-core'
-	runtimeOnly 'org.postgresql:postgresql'
-
-	// OpenAPI/Swagger
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0'
-
-	// JSON
-	implementation 'com.fasterxml.jackson.core:jackson-databind'
-	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
-	implementation 'com.google.code.gson:gson'
-
-	// Lombok
-	compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
-
-	// Testing
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testCompileOnly 'org.projectlombok:lombok'
-	testAnnotationProcessor 'org.projectlombok:lombok'
+allprojects {
+	repositories {
+		mavenCentral()
+	}
 }
 
-tasks.named('test') {
-	useJUnitPlatform()
+subprojects {
+	apply plugin: 'java'
+	apply plugin: 'io.spring.dependency-management'
+
+	java {
+		sourceCompatibility = '17'
+	}
+}
+
+// Задача для сборки shop модуля
+task buildShop(type: Exec) {
+	workingDir 'shop'
+	commandLine '../gradlew', 'bootJar', '-x', 'test'
 }
 
 // Задача для сборки аудит модуля отдельно
@@ -56,5 +44,5 @@ task buildAudit(type: Exec) {
 
 // Общая задача сборки
 task buildAll {
-	dependsOn bootJar, buildAudit
+	dependsOn buildShop, buildAudit
 }

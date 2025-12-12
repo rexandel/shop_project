@@ -1,0 +1,30 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  application:
+    name: shop_project
+  datasource:
+    url: jdbc:postgresql://localhost:15432/Marketplace
+    username: postgres
+    password: 2012
+  flyway:
+    url: jdbc:postgresql://localhost:15432/Marketplace
+    user: postgres
+    password: 2012
+    locations: classpath:db/migration
+    enabled: true
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: guest
+    password: guest
+    orderCreatedQueue: oms.order.created
+    listener:
+      simple:
+        retry:
+          enabled: true
+          max-attempts: 10
+          initial-interval: 3000
+          multiplier: 1.5

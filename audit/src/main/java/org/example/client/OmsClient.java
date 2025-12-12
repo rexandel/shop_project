@@ -17,12 +17,7 @@ public class OmsClient {
         }
 
         for (AuditLogOrderRequest.LogOrder order : request.getOrders()) {
-            auditLogService.logOrder(
-                    order.getOrderId(),
-                    order.getOrderItemId(),
-                    order.getCustomerId(),
-                    order.getOrderStatus()
-            );
+            auditLogService.logOrder(order);
         }
     }
 }
