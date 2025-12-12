@@ -28,6 +28,9 @@ public class RabbitMqConfig {
         container.setConnectionFactory(connectionFactory);
         container.setQueues(orderCreatedQueue());
         container.setMessageListener(consumer);
+        // Настраиваем ручное подтверждение (Ack)
+        container.setAcknowledgeMode(org.springframework.amqp.core.AcknowledgeMode.MANUAL);
+        container.setPrefetchCount(10); // Количество сообщений для предварительной загрузки
         return container;
     }
 

@@ -17,15 +17,6 @@ public class AuditLogOrderRequest {
         private Long orderId;
         private Long itemId;
         private Long customerId;
-        private Long productId;
-        private Integer quantity;
-        private String productTitle;
-        private String productUrl;
-        private String deliveryAddress;
-        private Long totalPriceCents;
-        private String totalPriceCurrency;
-        private Long priceCents;
-        private String priceCurrency;
         private String eventType;
     }
 }

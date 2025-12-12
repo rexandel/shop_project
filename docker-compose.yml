@@ -91,6 +91,9 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/Marketplace
       SPRING_DATASOURCE_USERNAME: user
       SPRING_DATASOURCE_PASSWORD: 2012
+      SPRING_FLYWAY_URL: jdbc:postgresql://postgres:5432/Marketplace
+      SPRING_FLYWAY_USER: user
+      SPRING_FLYWAY_PASSWORD: 2012
     ports:
       - "8081:8081"
     depends_on:

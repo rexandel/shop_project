@@ -1,48 +1,49 @@
 package org.example.audit_service.rabbit.consumer;
 
+import com.rabbitmq.client.Channel;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.audit_service.DTO.AuditLogOrderRequest;
+import org.example.audit_service.mappers.AuditLogMapper;
 import org.example.audit_service.service.AuditLogService;
 import org.example.common.JsonUtil;
 import org.example.audit_service.OrderCreatedMessage;
 import org.springframework.amqp.core.Message;
-import org.springframework.amqp.core.MessageListener;
+import org.springframework.amqp.rabbit.listener.api.ChannelAwareMessageListener;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
-public class OrderCreatedConsumer implements MessageListener {
+public class OrderCreatedConsumer implements ChannelAwareMessageListener {
 
     private final AuditLogService auditLogService;
+    private final AuditLogMapper auditLogMapper;
 
     @Override
-    public void onMessage(Message message) {
-        String json = new String(message.getBody(), StandardCharsets.UTF_8);
-        OrderCreatedMessage order = JsonUtil.fromJson(json, OrderCreatedMessage.class);
+    public void onMessage(Message message, Channel channel) throws Exception {
+        long deliveryTag = message.getMessageProperties().getDeliveryTag();
+        
+        try {
+            String json = new String(message.getBody(), StandardCharsets.UTF_8);
+            OrderCreatedMessage order = JsonUtil.fromJson(json, OrderCreatedMessage.class);
 
-        // Логируем каждый item заказа
-        if (order.getOrderItems() != null) {
-            order.getOrderItems().forEach(item -> {
-                AuditLogOrderRequest.LogOrder logOrder = new AuditLogOrderRequest.LogOrder(
-                        order.getId(),
-                        item.getId(),
-                        order.getCustomerId(),
-                        item.getProductId(),
-                        item.getQuantity(),
-                        item.getProductTitle(),
-                        item.getProductUrl(),
-                        order.getDeliveryAddress(),
-                        order.getTotalPriceCents(),
-                        order.getTotalPriceCurrency(),
-                        item.getPriceCents(),
-                        item.getPriceCurrency(),
-                        "ORDER_CREATED"
-                );
-                auditLogService.logOrder(logOrder);
-            });
+            if (order.getOrderItems() != null) {
+                order.getOrderItems().forEach(item -> {
+                    AuditLogOrderRequest.LogOrder logOrder = auditLogMapper.toLogOrder(order, item);
+                    auditLogService.logOrder(logOrder);
+                });
+            }
+
+            channel.basicAck(deliveryTag, false);
+            log.debug("Message processed and acknowledged. Delivery tag: {}", deliveryTag);
+            
+        } catch (Exception e) {
+            log.error("Error processing message. Delivery tag: {}", deliveryTag, e);
+            channel.basicNack(deliveryTag, false, false);
+            throw e;
         }
     }
 }

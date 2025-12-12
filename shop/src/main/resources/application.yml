@@ -13,8 +13,9 @@ spring:
     url: jdbc:postgresql://localhost:15432/Marketplace
     user: postgres
     password: 2012
-    locations: classpath:db/migration
+    locations: filesystem:db/migration
     enabled: true
+    baseline-on-migrate: true
   rabbitmq:
     host: rabbitmq
     port: 5672

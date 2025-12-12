@@ -19,7 +19,7 @@ spring:
     url: jdbc:postgresql://localhost:5432/Marketplace
     user: postgres
     password: 2012
-    locations: classpath:db/migration
+    locations: filesystem:db/migration
     enabled: true
     baseline-on-migrate: true
   jpa:

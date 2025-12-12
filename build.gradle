@@ -9,6 +9,7 @@ version = '0.0.1-SNAPSHOT'
 
 java {
 	sourceCompatibility = '17'
+	targetCompatibility = '17'
 }
 
 repositories {
@@ -16,6 +17,11 @@ repositories {
 }
 
 allprojects {
+	java {
+		sourceCompatibility = '17'
+		targetCompatibility = '17'
+	}
+
 	repositories {
 		mavenCentral()
 	}
@@ -25,24 +31,16 @@ subprojects {
 	apply plugin: 'java'
 	apply plugin: 'io.spring.dependency-management'
 
-	java {
-		sourceCompatibility = '17'
+	dependencies {
+		// Общие зависимости для всех модулей
+		implementation 'org.springframework.boot:spring-boot-starter-web'
+		implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+		// Lombok
+		compileOnly 'org.projectlombok:lombok'
+		annotationProcessor 'org.projectlombok:lombok'
+
+		// Testing
+		testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	}
-}
-
-// Задача для сборки shop модуля
-task buildShop(type: Exec) {
-	workingDir 'shop'
-	commandLine '../gradlew', 'bootJar', '-x', 'test'
-}
-
-// Задача для сборки аудит модуля отдельно
-task buildAudit(type: Exec) {
-	workingDir 'audit'
-	commandLine '../gradlew', 'bootJar', '-x', 'test'
-}
-
-// Общая задача сборки
-task buildAll {
-	dependsOn buildShop, buildAudit
 }

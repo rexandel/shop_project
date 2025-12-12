@@ -5,6 +5,9 @@ WORKDIR /app
 # Устанавливаем curl для healthcheck
 RUN apk add --no-cache curl
 
+# Копируем миграции
+COPY db/migration /app/db/migration
+
 # Копируем JAR аудит сервиса
 COPY audit/build/libs/audit-service.jar app.jar
 
