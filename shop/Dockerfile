@@ -5,7 +5,7 @@ WORKDIR /app
 # Устанавливаем curl для healthcheck
 RUN apk add --no-cache curl
 
-# Копируем JAR основного приложения
+# Копируем JAR приложения shop
 COPY build/libs/shop_project-0.0.1-SNAPSHOT.jar app.jar
 
 EXPOSE 8080
