@@ -1,11 +1,9 @@
 package org.example.audit_service.config.property;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@Setter
-@Getter
+@Data
 @ConfigurationProperties(prefix = "spring.rabbitmq")
 public class RabbitMqProperties {
 

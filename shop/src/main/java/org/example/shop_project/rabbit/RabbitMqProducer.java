@@ -1,5 +1,6 @@
 package org.example.shop_project.rabbit;
 
+import lombok.RequiredArgsConstructor;
 import org.example.shop_project.common.JsonUtil;
 import org.example.shop_project.config.properties.RabbitMqProperties;
 import org.example.shop_project.rabbit.message.OrderCreatedMessage;
@@ -9,12 +10,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class RabbitMqProducer {
-
-    public RabbitMqProducer(RabbitTemplate rabbitTemplate, RabbitMqProperties rabbitMqProperties) {
-        this.rabbitTemplate = rabbitTemplate;
-        this.rabbitMqProperties = rabbitMqProperties;
-    }
 
     private final RabbitTemplate rabbitTemplate;
     private final RabbitMqProperties rabbitMqProperties;

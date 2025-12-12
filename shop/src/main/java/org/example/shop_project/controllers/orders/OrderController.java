@@ -3,6 +3,7 @@ package org.example.shop_project.controllers.orders;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import java.util.List;
 import java.util.Map;
 import org.example.shop_project.BLL.orders.service.OrderService;
@@ -20,15 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "OrderController", description = "CRUD операции над заказами")
 @RestController
 @RequestMapping("/api/v1/orders")
+@RequiredArgsConstructor
 public class OrderController {
 
   private final OrderService orderService;
   private final ValidatorFactory validatorFactory;
-
-  public OrderController(OrderService orderService, ValidatorFactory validatorFactory) {
-    this.orderService = orderService;
-    this.validatorFactory = validatorFactory;
-  }
 
   @Operation(summary = "Создать заказы (batch-create)")
   @PostMapping("/batch-create")

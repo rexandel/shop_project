@@ -1,5 +1,6 @@
 package org.example.shop_project.BLL.orders.service;
 
+import lombok.RequiredArgsConstructor;
 import java.sql.SQLException;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -24,17 +25,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class OrderService {
 
   private final IOrderRepository orderRepository;
   private final IOrderItemRepository orderItemRepository;
   private final RabbitMqProducer rabbitMqProducer;
-
-  public OrderService(IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, RabbitMqProducer rabbitMqProducer) {
-    this.orderRepository = orderRepository;
-    this.orderItemRepository = orderItemRepository;
-    this.rabbitMqProducer = rabbitMqProducer;
-  }
 
   @Transactional
   public V1CreateOrderResponse createOrders(V1CreateOrderRequest request)
