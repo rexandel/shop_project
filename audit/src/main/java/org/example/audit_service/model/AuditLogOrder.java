@@ -30,14 +30,41 @@ public class AuditLogOrder {
     @Column(name = "order_id", nullable = false)
     private Long orderId;
 
-    @Column(name = "order_item_id", nullable = false)
-    private Long orderItemId;
+    @Column(name = "item_id", nullable = false)
+    private Long itemId;
 
     @Column(name = "customer_id", nullable = false)
     private Long customerId;
 
-    @Column(name = "order_status", nullable = false)
-    private String orderStatus;
+    @Column(name = "product_id")
+    private Long productId;
+
+    @Column(name = "quantity")
+    private Integer quantity;
+
+    @Column(name = "product_title")
+    private String productTitle;
+
+    @Column(name = "product_url")
+    private String productUrl;
+
+    @Column(name = "delivery_address")
+    private String deliveryAddress;
+
+    @Column(name = "total_price_cents")
+    private Long totalPriceCents;
+
+    @Column(name = "total_price_currency")
+    private String totalPriceCurrency;
+
+    @Column(name = "price_cents")
+    private Long priceCents;
+
+    @Column(name = "price_currency")
+    private String priceCurrency;
+
+    @Column(name = "event_type")
+    private String eventType;
 
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
