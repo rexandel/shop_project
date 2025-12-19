@@ -9,8 +9,10 @@ import java.util.Map;
 import org.example.shop.BLL.orders.service.OrderService;
 import org.example.shop.DTO.requests.V1CreateOrderRequest;
 import org.example.shop.DTO.requests.V1QueryOrdersRequest;
+import org.example.shop.DTO.requests.V1UpdateOrdersStatusRequest;
 import org.example.shop.DTO.responses.V1CreateOrderResponse;
 import org.example.shop.DTO.responses.V1QueryOrdersResponse;
+import org.example.shop.DTO.responses.V1UpdateOrderStatusResponse;
 import org.example.shop.validators.ValidatorFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -40,6 +42,20 @@ public class OrderController {
     try {
       V1CreateOrderResponse response = orderService.createOrders(request);
       return ResponseEntity.ok(response);
+    } catch (Exception e) {
+      return ResponseEntity.internalServerError()
+          .body(Map.of("error", "Internal server error"));
+    }
+  }
+
+  @Operation(summary = "Обновить статус заказов")
+  @PostMapping("/status")
+  public ResponseEntity<?> v1UpdateOrdersStatus(@RequestBody V1UpdateOrdersStatusRequest request) {
+    try {
+      orderService.updateOrdersStatus(request);
+      return ResponseEntity.ok(new V1UpdateOrderStatusResponse());
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
     } catch (Exception e) {
       return ResponseEntity.internalServerError()
           .body(Map.of("error", "Internal server error"));

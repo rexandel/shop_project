@@ -15,11 +15,13 @@ import org.example.shop.DAL.orders.repository.jpa.IOrderItemRepository;
 import org.example.shop.DAL.orders.repository.jpa.IOrderRepository;
 import org.example.shop.DTO.requests.V1CreateOrderRequest;
 import org.example.shop.DTO.requests.V1QueryOrdersRequest;
+import org.example.shop.DTO.requests.V1UpdateOrdersStatusRequest;
 import org.example.shop.DTO.responses.V1CreateOrderResponse;
 import org.example.shop.DTO.responses.V1QueryOrdersResponse;
 import org.example.shop.mappers.OrderMapper;
 import org.example.shop.rabbit.RabbitMqProducer;
 import org.example.shop.rabbit.message.OrderCreatedMessage;
+import org.example.shop.rabbit.message.OrderStatusChangedMessage;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,7 +56,7 @@ public class OrderService {
     orderItemRepository.bulkInsert(items);
 
     List<OrderCreatedMessage> messages = orderMapper.toMessages(orders, items);
-    rabbitMqProducer.publishOrderCreated(messages);
+    rabbitMqProducer.publish(messages);
 
     V1CreateOrderResponse response = new V1CreateOrderResponse();
     List<V1CreateOrderResponse.Order> responseOrders = orders.stream()
@@ -68,6 +70,36 @@ public class OrderService {
 
     response.setOrders(responseOrders);
     return response;
+  }
+
+  @Transactional
+  public void updateOrdersStatus(V1UpdateOrdersStatusRequest request) throws SQLException {
+    if (request.getOrderIds() == null || request.getOrderIds().length == 0) {
+      return;
+    }
+
+    QueryOrdersDalModel dalModel = new QueryOrdersDalModel();
+    Long[] ids = java.util.Arrays.stream(request.getOrderIds()).boxed().toArray(Long[]::new);
+    dalModel.setIds(ids);
+
+    List<Order> orders = orderRepository.query(dalModel);
+
+    if (orders.isEmpty()) {
+      return;
+    }
+
+    List<OrderStatusChangedMessage> messages = new ArrayList<>();
+
+    for (Order order : orders) {
+      if ("created".equalsIgnoreCase(order.getStatus()) && "completed".equalsIgnoreCase(request.getNewStatus())) {
+        throw new IllegalArgumentException("Invalid status transition from created to completed for order " + order.getId());
+      }
+      order.setStatus(request.getNewStatus());
+      messages.add(new OrderStatusChangedMessage(order.getId(), request.getNewStatus()));
+    }
+
+    orderRepository.saveAll(orders);
+    rabbitMqProducer.publish(messages);
   }
 
   @Transactional(readOnly = true)

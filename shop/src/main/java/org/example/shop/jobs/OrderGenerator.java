@@ -4,12 +4,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.shop.BLL.orders.service.OrderService;
 import org.example.shop.DTO.requests.V1CreateOrderRequest;
+import org.example.shop.DTO.requests.V1UpdateOrdersStatusRequest;
+import org.example.shop.DTO.responses.V1CreateOrderResponse;
 import org.jeasy.random.EasyRandom;
 import org.jeasy.random.EasyRandomParameters;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -19,6 +22,7 @@ import java.util.stream.IntStream;
 public class OrderGenerator implements CommandLineRunner {
 
     private final OrderService orderService;
+    private final Random random = new Random();
 
     @Override
     public void run(String... args) {
@@ -66,8 +70,30 @@ public class OrderGenerator implements CommandLineRunner {
                 request.setOrders(orders);
 
                 log.info("Sending batch of {} orders...", orders.size());
-                orderService.createOrders(request);
+                V1CreateOrderResponse response = orderService.createOrders(request);
                 log.info("Batch sent successfully.");
+
+                // Update status for some orders
+                if (response.getOrders() != null && !response.getOrders().isEmpty()) {
+                    List<Long> orderIds = response.getOrders().stream()
+                            .map(V1CreateOrderResponse.Order::getId)
+                            .collect(Collectors.toList());
+                    
+                    // Select random subset of orders to update
+                    int updateCount = random.nextInt(orderIds.size()) + 1;
+                    long[] idsToUpdate = orderIds.stream()
+                            .limit(updateCount)
+                            .mapToLong(Long::longValue)
+                            .toArray();
+
+                    V1UpdateOrdersStatusRequest updateRequest = new V1UpdateOrdersStatusRequest();
+                    updateRequest.setOrderIds(idsToUpdate);
+                    updateRequest.setNewStatus("in_progress");
+
+                    log.info("Updating status for {} orders...", idsToUpdate.length);
+                    orderService.updateOrdersStatus(updateRequest);
+                    log.info("Status update sent successfully.");
+                }
                 
                 Thread.sleep(250);
             } catch (InterruptedException e) {

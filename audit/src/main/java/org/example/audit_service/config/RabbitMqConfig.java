@@ -3,6 +3,7 @@ package org.example.audit_service.config;
 import lombok.RequiredArgsConstructor;
 import org.example.audit_service.config.property.RabbitMqProperties;
 import org.example.audit_service.rabbit.consumer.OrderCreatedConsumer;
+import org.example.audit_service.rabbit.consumer.OrderStatusChangedConsumer;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
@@ -18,11 +19,16 @@ public class RabbitMqConfig {
 
     @Bean
     public Queue orderCreatedQueue() {
-        return new Queue(settings.getOrderCreatedQueue(), false);
+        return new Queue(settings.getOrderCreated().getQueue(), false);
     }
 
     @Bean
-    public SimpleMessageListenerContainer listenerContainer(ConnectionFactory connectionFactory,
+    public Queue orderStatusChangedQueue() {
+        return new Queue(settings.getOrderStatusChanged().getQueue(), false);
+    }
+
+    @Bean
+    public SimpleMessageListenerContainer orderCreatedListenerContainer(ConnectionFactory connectionFactory,
                                                             OrderCreatedConsumer consumer) {
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
         container.setConnectionFactory(connectionFactory);
@@ -32,11 +38,30 @@ public class RabbitMqConfig {
         container.setAcknowledgeMode(org.springframework.amqp.core.AcknowledgeMode.MANUAL);
         
         container.setConsumerBatchEnabled(true);
-        container.setBatchSize(settings.getBatchSize());
-        container.setReceiveTimeout((long) settings.getBatchTimeoutSeconds() * 1000);
+        container.setBatchSize(settings.getOrderCreated().getBatchSize());
+        container.setReceiveTimeout((long) settings.getOrderCreated().getBatchTimeoutSeconds() * 1000);
         
-        container.setPrefetchCount(settings.getBatchSize()); 
+        container.setPrefetchCount(settings.getOrderCreated().getBatchSize()); 
         
+        return container;
+    }
+
+    @Bean
+    public SimpleMessageListenerContainer orderStatusChangedListenerContainer(ConnectionFactory connectionFactory,
+                                                                        OrderStatusChangedConsumer consumer) {
+        SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+        container.setConnectionFactory(connectionFactory);
+        container.setQueues(orderStatusChangedQueue());
+        container.setMessageListener(consumer);
+
+        container.setAcknowledgeMode(org.springframework.amqp.core.AcknowledgeMode.MANUAL);
+
+        container.setConsumerBatchEnabled(true);
+        container.setBatchSize(settings.getOrderStatusChanged().getBatchSize());
+        container.setReceiveTimeout((long) settings.getOrderStatusChanged().getBatchTimeoutSeconds() * 1000);
+
+        container.setPrefetchCount(settings.getOrderStatusChanged().getBatchSize());
+
         return container;
     }
 

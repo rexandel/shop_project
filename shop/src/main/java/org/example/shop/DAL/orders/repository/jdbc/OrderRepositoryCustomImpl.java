@@ -33,7 +33,7 @@ public class OrderRepositoryCustomImpl implements OrderRepositoryCustom {
     StringBuilder sql =
         new StringBuilder(
             "SELECT id, customer_id, delivery_address, total_price_cents,"
-                + " total_price_currency, created_at, updated_at FROM orders");
+                + " total_price_currency, created_at, updated_at, status FROM orders");
 
     List<String> conditions = new ArrayList<>();
 
@@ -81,6 +81,7 @@ public class OrderRepositoryCustomImpl implements OrderRepositoryCustom {
           o.setTotalPriceCurrency(rs.getString("total_price_currency"));
           o.setCreatedAt(rs.getObject("created_at", OffsetDateTime.class));
           o.setUpdatedAt(rs.getObject("updated_at", OffsetDateTime.class));
+          o.setStatus(rs.getString("status"));
           orders.add(o);
         }
         return orders;

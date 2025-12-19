@@ -37,9 +37,14 @@ spring:
     port: 5672
     username: guest
     password: guest
-    orderCreatedQueue: oms.order.created
-    batchSize: 100
-    batchTimeoutSeconds: 1
+    orderCreated:
+      queue: oms.order.created
+      batchSize: 100
+      batchTimeoutSeconds: 1
+    orderStatusChanged:
+      queue: oms.order.status.changed
+      batchSize: 100
+      batchTimeoutSeconds: 1
     listener:
       simple:
         retry:

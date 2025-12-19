@@ -56,9 +56,9 @@ public class AuditLogOrderDAO {
             """;
 
         jdbcTemplate.batchUpdate(sql, logs, logs.size(), (ps, log) -> {
-            ps.setLong(1, log.getOrderId());
-            ps.setLong(2, log.getItemId());
-            ps.setLong(3, log.getCustomerId());
+            ps.setObject(1, log.getOrderId());
+            ps.setObject(2, log.getItemId());
+            ps.setObject(3, log.getCustomerId());
             ps.setString(4, log.getEventType());
             ps.setTimestamp(5, Timestamp.valueOf(log.getCreatedAt().toLocalDateTime()));
             ps.setTimestamp(6, Timestamp.valueOf(log.getUpdatedAt().toLocalDateTime()));

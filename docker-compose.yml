@@ -52,6 +52,7 @@ services:
       SPRING_FLYWAY_URL: jdbc:postgresql://postgres:5432/Marketplace
       SPRING_FLYWAY_USER: user
       SPRING_FLYWAY_PASSWORD: 2012
+      SPRING_RABBITMQ_HOST: rabbitmq
     ports:
       - "8080:8080"
     depends_on:

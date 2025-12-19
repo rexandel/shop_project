@@ -33,11 +33,20 @@ spring:
       hibernate.order_inserts: true
       hibernate.order_updates: true
   rabbitmq:
-    host: rabbitmq
+    host: localhost
     port: 5672
     username: guest
     password: guest
-    orderCreatedQueue: oms.order.created
+    exchange: oms
+    exchangeMappings:
+      - queue: oms.order.created
+        routingKeyPattern: order.created
+      - queue: oms.order.status.changed
+        routingKeyPattern: order.status.changed
+      - queue: public.oms.order.created
+        routingKeyPattern: order.created
+      - queue: public.oms.order.status.changed
+        routingKeyPattern: order.status.changed
     listener:
       simple:
         retry:

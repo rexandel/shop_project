@@ -3,6 +3,7 @@ package org.example.audit_service.mappers;
 import org.example.audit_service.DTO.AuditLogOrderRequest;
 import org.example.audit_service.model.AuditLogOrder;
 import org.example.audit_service.OrderCreatedMessage;
+import org.example.audit_service.OrderStatusChangedMessage;
 import org.springframework.stereotype.Component;
 
 import java.time.OffsetDateTime;
@@ -16,6 +17,15 @@ public class AuditLogMapper {
                 item.getId(),
                 message.getCustomerId(),
                 "ORDER_CREATED"
+        );
+    }
+
+    public AuditLogOrderRequest.LogOrder toLogOrder(OrderStatusChangedMessage message) {
+        return new AuditLogOrderRequest.LogOrder(
+                message.getId(),
+                null,
+                null,
+                "ORDER_STATUS_CHANGED: " + message.getStatus()
         );
     }
 

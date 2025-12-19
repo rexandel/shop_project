@@ -28,6 +28,9 @@ public class Order {
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
 
+    @Builder.Default
+    private String status = "created";
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> orderItems;
 }

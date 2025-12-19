@@ -9,7 +9,13 @@ public class RabbitMqProperties {
 
     private String host;
     private int port;
-    private String orderCreatedQueue;
-    private Integer batchSize = 100;
-    private Integer batchTimeoutSeconds = 1;
+    private TopicSettingsUnit orderCreated;
+    private TopicSettingsUnit orderStatusChanged;
+
+    @Data
+    public static class TopicSettingsUnit {
+        private String queue;
+        private Integer batchSize;
+        private Integer batchTimeoutSeconds;
+    }
 }
