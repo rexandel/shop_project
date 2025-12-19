@@ -8,8 +8,9 @@ group = 'org.example'
 version = '0.0.1-SNAPSHOT'
 
 java {
-	sourceCompatibility = '17'
-	targetCompatibility = '17'
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
 }
 
 repositories {
@@ -18,8 +19,9 @@ repositories {
 
 allprojects {
 	java {
-		sourceCompatibility = '17'
-		targetCompatibility = '17'
+		toolchain {
+			languageVersion = JavaLanguageVersion.of(17)
+		}
 	}
 
 	repositories {
@@ -31,14 +33,24 @@ subprojects {
 	apply plugin: 'java'
 	apply plugin: 'io.spring.dependency-management'
 
+	java {
+		toolchain {
+			languageVersion = JavaLanguageVersion.of(17)
+		}
+	}
+
+	tasks.withType(JavaCompile).configureEach {
+		options.fork = true
+	}
+
 	dependencies {
 		// Общие зависимости для всех модулей
 		implementation 'org.springframework.boot:spring-boot-starter-web'
 		implementation 'org.springframework.boot:spring-boot-starter-validation'
 
 		// Lombok
-		compileOnly 'org.projectlombok:lombok'
-		annotationProcessor 'org.projectlombok:lombok'
+		compileOnly 'org.projectlombok:lombok:1.18.36'
+		annotationProcessor 'org.projectlombok:lombok:1.18.36'
 
 		// Testing
 		testImplementation 'org.springframework.boot:spring-boot-starter-test'

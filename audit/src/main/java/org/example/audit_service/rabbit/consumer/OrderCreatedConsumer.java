@@ -38,12 +38,14 @@ public class OrderCreatedConsumer implements ChannelAwareMessageListener {
             }
 
             channel.basicAck(deliveryTag, false);
-            log.debug("Message processed and acknowledged. Delivery tag: {}", deliveryTag);
+            log.info("Message processed and acknowledged. Delivery tag: {}", deliveryTag);
             
         } catch (Exception e) {
             log.error("Error processing message. Delivery tag: {}", deliveryTag, e);
-            channel.basicNack(deliveryTag, false, false);
-            throw e;
+            // Requeue = true, чтобы сообщение вернулось в очередь и мы попытались обработать его снова
+            // В сочетании с prefetchCount = 1 это остановит обработку новых сообщений до успеха
+            channel.basicNack(deliveryTag, false, true);
+            // Не пробрасываем исключение дальше, так как мы уже обработали его через Nack
         }
     }
 }

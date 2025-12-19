@@ -1,43 +1,25 @@
 services:
   postgres:
-    image: postgres:15
+    image: postgres:17
+    container_name: postgres
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: 2012
-      POSTGRES_DB: Marketplace
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=2012
+      - POSTGRES_DB=Marketplace
+      - POSTGRES_HOST_AUTH_METHOD=scram-sha-256
+      - POSTGRES_INITDB_ARGS=--auth-host=scram-sha-256
     volumes:
       - pgdata:/var/lib/postgresql/data/
-      - ./initdb.d:/docker-entrypoint-initdb.d
+      - ./postgresql.conf:/etc/postgresql/postgresql.conf
     ports:
-      - "5433:5432"
+      - "5432:5432"
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
+    restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U user -d Marketplace"]
       interval: 10s
       timeout: 5s
-      retries: 5
-    networks:
-      - app-network
-
-  pgbouncer:
-    image: edoburu/pgbouncer:latest
-    environment:
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_USER: user
-      DB_PASSWORD: 2012
-      DB_NAME: Marketplace
-      ADMIN_USERS: user,admin
-      AUTH_TYPE: plain
-    ports:
-      - "15432:5432"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -h pgbouncer -p 5432 -U user -d Marketplace"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      retries: 3
     networks:
       - app-network
 
@@ -94,8 +76,10 @@ services:
       SPRING_FLYWAY_URL: jdbc:postgresql://postgres:5432/Marketplace
       SPRING_FLYWAY_USER: user
       SPRING_FLYWAY_PASSWORD: 2012
-    ports:
-      - "8081:8081"
+    deploy:
+      replicas: 2
+    # ports:
+    #   - "8081:8081" # Отключаем проброс порта, чтобы не было конфликта при масштабировании
     depends_on:
       postgres:
         condition: service_healthy

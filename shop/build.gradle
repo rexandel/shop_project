@@ -26,6 +26,9 @@ dependencies {
 	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 	implementation 'com.google.code.gson:gson'
 
+	// Random Data Generation
+	implementation 'org.jeasy:easy-random-core:5.0.0'
+
 	// Lombok (уже в корневом, но можно оставить)
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
