@@ -37,11 +37,9 @@ public class OrderService {
       throws SQLException {
     OffsetDateTime now = OffsetDateTime.now();
 
-    // DTO -> Entity
     List<Order> orders = orderMapper.toEntities(request.getOrders(), now);
     orderRepository.bulkInsert(orders);
 
-    // DTO -> Entity для OrderItems
     List<OrderItem> items = new ArrayList<>();
     for (int i = 0; i < request.getOrders().size(); i++) {
       V1CreateOrderRequest.Order reqOrder = request.getOrders().get(i);
@@ -55,11 +53,9 @@ public class OrderService {
 
     orderItemRepository.bulkInsert(items);
 
-    // Entity -> RabbitMQ Message
     List<OrderCreatedMessage> messages = orderMapper.toMessages(orders, items);
     rabbitMqProducer.publishOrderCreated(messages);
 
-    // Entity -> Response DTO
     V1CreateOrderResponse response = new V1CreateOrderResponse();
     List<V1CreateOrderResponse.Order> responseOrders = orders.stream()
             .map(order -> {
@@ -85,7 +81,6 @@ public class OrderService {
 
     List<OrderUnit> orderUnits = getOrders(dalModel, true);
 
-    // BLL Model -> Response DTO
     V1QueryOrdersResponse response = new V1QueryOrdersResponse();
     List<V1QueryOrdersResponse.Order> responseOrders = orderUnits.stream()
             .map(orderMapper::toQueryResponse)
@@ -114,7 +109,6 @@ public class OrderService {
       items = orderItemRepository.query(itemModel);
     }
 
-    // Entity -> BLL Model
     return orderMapper.toOrderUnits(orders, items);
   }
 

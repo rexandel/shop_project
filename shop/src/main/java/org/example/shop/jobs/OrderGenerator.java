@@ -45,7 +45,6 @@ public class OrderGenerator implements CommandLineRunner {
                 List<V1CreateOrderRequest.Order> orders = IntStream.range(0, 50)
                         .mapToObj(i -> {
                             V1CreateOrderRequest.OrderItem orderItem = easyRandom.nextObject(V1CreateOrderRequest.OrderItem.class);
-                            // Явно задаем поля для прохождения валидации
                             orderItem.setPriceCurrency("RUB");
                             orderItem.setPriceCents(100L);
                             orderItem.setQuantity(1);
@@ -77,7 +76,7 @@ public class OrderGenerator implements CommandLineRunner {
             } catch (Exception e) {
                 log.error("Error in order generation loop", e);
                 try {
-                    Thread.sleep(1000); // Wait a bit before retrying on error
+                    Thread.sleep(1000);
                 } catch (InterruptedException ex) {
                     Thread.currentThread().interrupt();
                     break;

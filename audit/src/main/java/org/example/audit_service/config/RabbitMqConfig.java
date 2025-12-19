@@ -29,15 +29,12 @@ public class RabbitMqConfig {
         container.setQueues(orderCreatedQueue());
         container.setMessageListener(consumer);
         
-        // Настраиваем ручное подтверждение (Ack)
         container.setAcknowledgeMode(org.springframework.amqp.core.AcknowledgeMode.MANUAL);
         
-        // Настройки батчинга
         container.setConsumerBatchEnabled(true);
         container.setBatchSize(settings.getBatchSize());
-        container.setReceiveTimeout((long) settings.getBatchTimeoutSeconds() * 1000); // ms
+        container.setReceiveTimeout((long) settings.getBatchTimeoutSeconds() * 1000);
         
-        // Prefetch должен быть не меньше размера батча
         container.setPrefetchCount(settings.getBatchSize()); 
         
         return container;

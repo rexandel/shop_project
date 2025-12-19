@@ -15,7 +15,6 @@ public class AuditLogService {
     private final AuditLogMapper auditLogMapper;
 
     public void logOrder(AuditLogOrderRequest.LogOrder logOrder) {
-        // DTO -> Entity
         AuditLogOrder log = auditLogMapper.toEntity(logOrder);
         auditLogOrderDAO.save(log);
     }

@@ -28,8 +28,6 @@ public abstract class BaseBatchMessageConsumer<T> implements ChannelAwareBatchMe
         if (messages.isEmpty()) return;
 
         List<T> batch = new ArrayList<>();
-        // We keep track of MessageInfo just to match the C# structure's internal logic, 
-        // although we only pass T to the abstract method.
         List<MessageInfo> messageInfos = new ArrayList<>();
 
         try {
@@ -45,7 +43,6 @@ public abstract class BaseBatchMessageConsumer<T> implements ChannelAwareBatchMe
 
             processMessages(batch);
 
-            // ACK all messages in the batch (multiple = true for the last one)
             long lastDeliveryTag = messageInfos.get(messageInfos.size() - 1).getDeliveryTag();
             channel.basicAck(lastDeliveryTag, true);
             
@@ -55,12 +52,10 @@ public abstract class BaseBatchMessageConsumer<T> implements ChannelAwareBatchMe
             log.error("Failed to process batch: {}", ex.getMessage());
             
             try {
-                // NACK all messages in the batch for reprocessing
                 if (!messageInfos.isEmpty()) {
                     long lastDeliveryTag = messageInfos.get(messageInfos.size() - 1).getDeliveryTag();
                     channel.basicNack(lastDeliveryTag, true, true);
                 } else if (!messages.isEmpty()) {
-                     // Fallback if messageInfos failed to populate (e.g. encoding error)
                      long lastDeliveryTag = messages.get(messages.size() - 1).getMessageProperties().getDeliveryTag();
                      channel.basicNack(lastDeliveryTag, true, true);
                 }

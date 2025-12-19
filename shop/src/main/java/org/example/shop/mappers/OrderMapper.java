@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 @Component
 public class OrderMapper {
 
-    // DTO -> Entity
     public Order toEntity(V1CreateOrderRequest.Order dto, OffsetDateTime now) {
         Order entity = new Order();
         entity.setCustomerId(dto.getCustomerId());
@@ -49,7 +48,6 @@ public class OrderMapper {
         return entity;
     }
 
-    // Entity -> BLL Model
     public OrderUnit toOrderUnit(Order entity) {
         OrderUnit unit = new OrderUnit();
         unit.setId(entity.getId());
@@ -98,7 +96,7 @@ public class OrderMapper {
                 .collect(Collectors.toList());
     }
 
-    // Entity -> Response DTO
+
     public V1CreateOrderResponse.Order toCreateResponse(Order entity, List<OrderItem> items) {
         V1CreateOrderResponse.Order dto = new V1CreateOrderResponse.Order();
         dto.setId(entity.getId());
@@ -132,7 +130,6 @@ public class OrderMapper {
         return dto;
     }
 
-    // BLL Model -> Response DTO
     public V1QueryOrdersResponse.Order toQueryResponse(OrderUnit unit) {
         V1QueryOrdersResponse.Order dto = new V1QueryOrdersResponse.Order();
         dto.setId(unit.getId());
@@ -166,7 +163,6 @@ public class OrderMapper {
         return dto;
     }
 
-    // Entity -> RabbitMQ Message
     public OrderCreatedMessage toMessage(Order entity, List<OrderItem> items) {
         OrderCreatedMessage message = new OrderCreatedMessage();
         message.setId(entity.getId());

@@ -10,7 +10,6 @@ import java.time.OffsetDateTime;
 @Component
 public class AuditLogMapper {
 
-    // RabbitMQ Message -> DTO
     public AuditLogOrderRequest.LogOrder toLogOrder(OrderCreatedMessage message, OrderCreatedMessage.OrderItemMessage item) {
         return new AuditLogOrderRequest.LogOrder(
                 message.getId(),
@@ -20,7 +19,6 @@ public class AuditLogMapper {
         );
     }
 
-    // DTO -> Entity
     public AuditLogOrder toEntity(AuditLogOrderRequest.LogOrder dto) {
         OffsetDateTime now = OffsetDateTime.now();
         return AuditLogOrder.builder()
