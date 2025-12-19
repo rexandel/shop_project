@@ -1,0 +1,50 @@
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  application:
+    name: shop_project
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/Marketplace
+    username: postgres
+    password: 2012
+    hikari:
+      maximum-pool-size: 10
+      idle-timeout: 300000        # 300 секунд
+      keepalive-time: 300000      # 300 секунд
+      pool-name: HikariPool
+  flyway:
+    url: jdbc:postgresql://localhost:5432/Marketplace
+    user: postgres
+    password: 2012
+    locations: filesystem:db/migration
+    enabled: true
+    baseline-on-migrate: true
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate.format_sql: true
+      hibernate.jdbc.batch_size: 50   # batch insert/update
+      hibernate.order_inserts: true
+      hibernate.order_updates: true
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: guest
+    password: guest
+    orderCreatedQueue: oms.order.created
+    listener:
+      simple:
+        retry:
+          enabled: true
+          max-attempts: 10
+          initial-interval: 3000
+          multiplier: 1.5
+
+server:
+  port: 8081

@@ -41,8 +41,27 @@ services:
     networks:
       - app-network
 
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: [ "CMD", "rabbitmqctl", "status" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - app-network
+
+  # ОСНОВНОЕ приложение (shop_project)
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: shop/Dockerfile
     environment:
       SPRING_PROFILES_ACTIVE: dev
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/Marketplace
@@ -56,11 +75,38 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  # АУДИТ сервис
+  audit:
+    build:
+      context: .
+      dockerfile: audit/Dockerfile
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SERVER_PORT: 8081
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/Marketplace
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: 2012
+      SPRING_FLYWAY_URL: jdbc:postgresql://postgres:5432/Marketplace
+      SPRING_FLYWAY_USER: user
+      SPRING_FLYWAY_PASSWORD: 2012
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     networks:
       - app-network
 
 volumes:
   pgdata:
+  rabbitmq_data:
 
 networks:
   app-network:
