@@ -54,7 +54,7 @@ spring:
       - queue: public.oms.order.status.changed
         routingKeyPattern: order.status.changed
       - queue: oms.logs
-        routingKeyPattern: order.*
+        routingKeyPattern: order.#
     listener:
       simple:
         retry:
