@@ -25,12 +25,20 @@ spring:
     exchangeMappings:
       - queue: oms.order.created
         routingKeyPattern: order.created
+        deadLetter:
+          dlx: oms.order.dlx
+          routingKey: order.created
       - queue: oms.order.status.changed
         routingKeyPattern: order.status.changed
+        deadLetter:
+          dlx: oms.order.dlx
+          routingKey: order.status.changed
       - queue: public.oms.order.created
         routingKeyPattern: order.created
       - queue: public.oms.order.status.changed
         routingKeyPattern: order.status.changed
+      - queue: oms.logs
+        routingKeyPattern: order.*
     listener:
       simple:
         retry:

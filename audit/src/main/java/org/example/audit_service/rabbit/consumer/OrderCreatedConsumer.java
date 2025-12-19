@@ -17,6 +17,7 @@ public class OrderCreatedConsumer extends BaseBatchMessageConsumer<OrderCreatedM
 
     private final AuditLogService auditLogService;
     private final AuditLogMapper auditLogMapper;
+    private int counter = 0;
 
     public OrderCreatedConsumer(AuditLogService auditLogService, AuditLogMapper auditLogMapper) {
         super(OrderCreatedMessage.class);
@@ -26,6 +27,11 @@ public class OrderCreatedConsumer extends BaseBatchMessageConsumer<OrderCreatedM
 
     @Override
     protected void processMessages(List<OrderCreatedMessage> messages) {
+        counter++;
+        if (counter % 5 == 0) {
+            throw new RuntimeException("Simulated error for batch " + counter);
+        }
+
         List<AuditLogOrderRequest.LogOrder> allLogOrders = new ArrayList<>();
         for (OrderCreatedMessage order : messages) {
             if (order.getOrderItems() != null) {

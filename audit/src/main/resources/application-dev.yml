@@ -41,10 +41,18 @@ spring:
       queue: oms.order.created
       batchSize: 100
       batchTimeoutSeconds: 1
+      deadLetter:
+        dlx: oms.order.dlx
+        dlq: oms.order.created.dlq
+        routingKey: order.created
     orderStatusChanged:
       queue: oms.order.status.changed
       batchSize: 100
       batchTimeoutSeconds: 1
+      deadLetter:
+        dlx: oms.order.dlx
+        dlq: oms.order.status.changed.dlq
+        routingKey: order.status.changed
     listener:
       simple:
         retry:

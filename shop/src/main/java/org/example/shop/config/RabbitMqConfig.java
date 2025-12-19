@@ -9,7 +9,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Configuration
 public class RabbitMqConfig {
@@ -31,7 +33,14 @@ public class RabbitMqConfig {
 
         if (rabbitMqProperties.getExchangeMappings() != null) {
             for (RabbitMqProperties.ExchangeMapping mapping : rabbitMqProperties.getExchangeMappings()) {
-                Queue queue = new Queue(mapping.getQueue(), false);
+                Map<String, Object> args = null;
+                if (mapping.getDeadLetter() != null) {
+                    args = new HashMap<>();
+                    args.put("x-dead-letter-exchange", mapping.getDeadLetter().getDlx());
+                    args.put("x-dead-letter-routing-key", mapping.getDeadLetter().getRoutingKey());
+                }
+
+                Queue queue = new Queue(mapping.getQueue(), false, false, false, args);
                 declarables.add(queue);
                 declarables.add(BindingBuilder.bind(queue).to(exchange).with(mapping.getRoutingKeyPattern()));
             }

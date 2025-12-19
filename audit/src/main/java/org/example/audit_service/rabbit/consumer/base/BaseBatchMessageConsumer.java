@@ -54,10 +54,10 @@ public abstract class BaseBatchMessageConsumer<T> implements ChannelAwareBatchMe
             try {
                 if (!messageInfos.isEmpty()) {
                     long lastDeliveryTag = messageInfos.get(messageInfos.size() - 1).getDeliveryTag();
-                    channel.basicNack(lastDeliveryTag, true, true);
+                    channel.basicNack(lastDeliveryTag, true, false);
                 } else if (!messages.isEmpty()) {
                      long lastDeliveryTag = messages.get(messages.size() - 1).getMessageProperties().getDeliveryTag();
-                     channel.basicNack(lastDeliveryTag, true, true);
+                     channel.basicNack(lastDeliveryTag, true, false);
                 }
             } catch (IOException e) {
                 log.error("Failed to NACK batch", e);

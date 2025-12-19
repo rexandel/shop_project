@@ -17,5 +17,12 @@ public class RabbitMqProperties {
     public static class ExchangeMapping {
         private String queue;
         private String routingKeyPattern;
+        private DeadLetterSettings deadLetter;
+    }
+
+    @Data
+    public static class DeadLetterSettings {
+        private String dlx;
+        private String routingKey;
     }
 }

@@ -17,5 +17,13 @@ public class RabbitMqProperties {
         private String queue;
         private Integer batchSize;
         private Integer batchTimeoutSeconds;
+        private DeadLetterSettings deadLetter;
+    }
+
+    @Data
+    public static class DeadLetterSettings {
+        private String dlx;
+        private String dlq;
+        private String routingKey;
     }
 }
