@@ -16,33 +16,9 @@ spring:
     locations: filesystem:db/migration
     enabled: true
     baseline-on-migrate: true
-  rabbitmq:
-    host: rabbitmq
-    port: 5672
-    username: guest
-    password: guest
-    exchange: oms
-    exchangeMappings:
-      - queue: oms.order.created
-        routingKeyPattern: order.created
-        deadLetter:
-          dlx: oms.order.dlx
-          routingKey: order.created
-      - queue: oms.order.status.changed
-        routingKeyPattern: order.status.changed
-        deadLetter:
-          dlx: oms.order.dlx
-          routingKey: order.status.changed
-      - queue: public.oms.order.created
-        routingKeyPattern: order.created
-      - queue: public.oms.order.status.changed
-        routingKeyPattern: order.status.changed
-      - queue: oms.logs
-        routingKeyPattern: order.#
-    listener:
-      simple:
-        retry:
-          enabled: true
-          max-attempts: 10
-          initial-interval: 3000
-          multiplier: 1.5
+
+kafka-settings:
+  bootstrap-servers: kafka:29092
+  client-id: universe-labs-oms
+  oms-order-created-topic: oms_order_created
+  oms-order-status-changed-topic: oms_order_status_changed

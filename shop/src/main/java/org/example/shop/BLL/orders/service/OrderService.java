@@ -19,9 +19,11 @@ import org.example.shop.DTO.requests.V1UpdateOrdersStatusRequest;
 import org.example.shop.DTO.responses.V1CreateOrderResponse;
 import org.example.shop.DTO.responses.V1QueryOrdersResponse;
 import org.example.shop.mappers.OrderMapper;
-import org.example.shop.rabbit.RabbitMqProducer;
-import org.example.shop.rabbit.message.OrderCreatedMessage;
-import org.example.shop.rabbit.message.OrderStatusChangedMessage;
+import org.example.shop.kafka.KafkaMessage;
+import org.example.shop.kafka.KafkaProducer;
+import org.example.shop.config.properties.KafkaSettings;
+import org.example.shop.kafka.message.OrderCreatedMessage;
+import org.example.shop.kafka.message.OrderStatusChangedMessage;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,8 +33,9 @@ public class OrderService {
 
   private final IOrderRepository orderRepository;
   private final IOrderItemRepository orderItemRepository;
-  private final RabbitMqProducer rabbitMqProducer;
   private final OrderMapper orderMapper;
+  private final KafkaProducer kafkaProducer;
+  private final KafkaSettings kafkaSettings;
 
   @Transactional
   public V1CreateOrderResponse createOrders(V1CreateOrderRequest request)
@@ -56,7 +59,11 @@ public class OrderService {
     orderItemRepository.bulkInsert(items);
 
     List<OrderCreatedMessage> messages = orderMapper.toMessages(orders, items);
-    rabbitMqProducer.publish(messages);
+    List<KafkaMessage<OrderCreatedMessage>> kafkaMessages = messages.stream()
+        .map(msg -> new KafkaMessage<>(msg.getCustomerId().toString(), msg))
+        .collect(Collectors.toList());
+    
+    kafkaProducer.produce(kafkaSettings.getOmsOrderCreatedTopic(), kafkaMessages);
 
     V1CreateOrderResponse response = new V1CreateOrderResponse();
     List<V1CreateOrderResponse.Order> responseOrders = orders.stream()
@@ -88,18 +95,19 @@ public class OrderService {
       return;
     }
 
-    List<OrderStatusChangedMessage> messages = new ArrayList<>();
+    List<KafkaMessage<OrderStatusChangedMessage>> kafkaMessages = new ArrayList<>();
 
     for (Order order : orders) {
       if ("created".equalsIgnoreCase(order.getStatus()) && "completed".equalsIgnoreCase(request.getNewStatus())) {
         throw new IllegalArgumentException("Invalid status transition from created to completed for order " + order.getId());
       }
       order.setStatus(request.getNewStatus());
-      messages.add(new OrderStatusChangedMessage(order.getId(), request.getNewStatus()));
+      OrderStatusChangedMessage msg = new OrderStatusChangedMessage(order.getId(), request.getNewStatus());
+      kafkaMessages.add(new KafkaMessage<>(order.getCustomerId().toString(), msg));
     }
 
     orderRepository.saveAll(orders);
-    rabbitMqProducer.publish(messages);
+    kafkaProducer.produce(kafkaSettings.getOmsOrderStatusChangedTopic(), kafkaMessages);
   }
 
   @Transactional(readOnly = true)

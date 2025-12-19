@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/orders")
 @RequiredArgsConstructor
+@lombok.extern.slf4j.Slf4j
 public class OrderController {
 
   private final OrderService orderService;
@@ -32,6 +33,8 @@ public class OrderController {
   @Operation(summary = "Создать заказы (batch-create)")
   @PostMapping("/batch-create")
   public ResponseEntity<?> v1BatchCreate(@Valid @RequestBody V1CreateOrderRequest request) {
+    log.info("Received batch create request");
+    if (true) throw new RuntimeException("Test exception");
     Map<String, List<String>> validationErrors =
         validatorFactory.getCreateOrderRequestValidator().validate(request);
 
@@ -43,6 +46,7 @@ public class OrderController {
       V1CreateOrderResponse response = orderService.createOrders(request);
       return ResponseEntity.ok(response);
     } catch (Exception e) {
+      log.error("Error creating orders", e);
       return ResponseEntity.internalServerError()
           .body(Map.of("error", "Internal server error"));
     }

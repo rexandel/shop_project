@@ -7,7 +7,7 @@ import org.example.shop.DAL.orders.entity.OrderItem;
 import org.example.shop.DTO.requests.V1CreateOrderRequest;
 import org.example.shop.DTO.responses.V1CreateOrderResponse;
 import org.example.shop.DTO.responses.V1QueryOrdersResponse;
-import org.example.shop.rabbit.message.OrderCreatedMessage;
+import org.example.shop.kafka.message.OrderCreatedMessage;
 import org.springframework.stereotype.Component;
 
 import java.time.OffsetDateTime;

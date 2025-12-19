@@ -23,6 +23,7 @@ public class OrderGenerator implements CommandLineRunner {
 
     private final OrderService orderService;
     private final Random random = new Random();
+    private static final List<Long> CUSTOMER_IDS = List.of(1L, 2L, 3L, 4L, 5L);
 
     @Override
     public void run(String... args) {
@@ -59,7 +60,7 @@ public class OrderGenerator implements CommandLineRunner {
                             order.setTotalPriceCurrency("RUB");
                             order.setTotalPriceCents(1000L);
                             order.setDeliveryAddress("Test Address " + i);
-                            order.setCustomerId((long) (i + 1));
+                            order.setCustomerId(CUSTOMER_IDS.get(random.nextInt(CUSTOMER_IDS.size())));
                             order.setOrderItems(List.of(orderItem));
                             
                             return order;

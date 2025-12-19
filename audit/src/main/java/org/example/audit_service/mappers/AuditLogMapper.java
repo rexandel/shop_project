@@ -2,8 +2,8 @@ package org.example.audit_service.mappers;
 
 import org.example.audit_service.DTO.AuditLogOrderRequest;
 import org.example.audit_service.model.AuditLogOrder;
-import org.example.audit_service.OrderCreatedMessage;
-import org.example.audit_service.OrderStatusChangedMessage;
+import org.example.audit_service.kafka.message.OrderCreatedMessage;
+import org.example.audit_service.kafka.message.OrderStatusChangedMessage;
 import org.springframework.stereotype.Component;
 
 import java.time.OffsetDateTime;
