@@ -1,51 +1,41 @@
 package org.example.audit_service.rabbit.consumer;
 
-import com.rabbitmq.client.Channel;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.audit_service.DTO.AuditLogOrderRequest;
-import org.example.audit_service.mappers.AuditLogMapper;
-import org.example.audit_service.service.AuditLogService;
-import org.example.common.JsonUtil;
 import org.example.audit_service.OrderCreatedMessage;
-import org.springframework.amqp.core.Message;
-import org.springframework.amqp.rabbit.listener.api.ChannelAwareMessageListener;
+import org.example.audit_service.mappers.AuditLogMapper;
+import org.example.audit_service.rabbit.consumer.base.BaseBatchMessageConsumer;
+import org.example.audit_service.service.AuditLogService;
 import org.springframework.stereotype.Component;
 
-import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
-public class OrderCreatedConsumer implements ChannelAwareMessageListener {
+public class OrderCreatedConsumer extends BaseBatchMessageConsumer<OrderCreatedMessage> {
 
     private final AuditLogService auditLogService;
     private final AuditLogMapper auditLogMapper;
 
-    @Override
-    public void onMessage(Message message, Channel channel) throws Exception {
-        long deliveryTag = message.getMessageProperties().getDeliveryTag();
-        
-        try {
-            String json = new String(message.getBody(), StandardCharsets.UTF_8);
-            OrderCreatedMessage order = JsonUtil.fromJson(json, OrderCreatedMessage.class);
+    public OrderCreatedConsumer(AuditLogService auditLogService, AuditLogMapper auditLogMapper) {
+        super(OrderCreatedMessage.class);
+        this.auditLogService = auditLogService;
+        this.auditLogMapper = auditLogMapper;
+    }
 
+    @Override
+    protected void processMessages(List<OrderCreatedMessage> messages) {
+        List<AuditLogOrderRequest.LogOrder> allLogOrders = new ArrayList<>();
+        for (OrderCreatedMessage order : messages) {
             if (order.getOrderItems() != null) {
                 order.getOrderItems().forEach(item -> {
-                    AuditLogOrderRequest.LogOrder logOrder = auditLogMapper.toLogOrder(order, item);
-                    auditLogService.logOrder(logOrder);
+                    allLogOrders.add(auditLogMapper.toLogOrder(order, item));
                 });
             }
-
-            channel.basicAck(deliveryTag, false);
-            log.info("Message processed and acknowledged. Delivery tag: {}", deliveryTag);
-            
-        } catch (Exception e) {
-            log.error("Error processing message. Delivery tag: {}", deliveryTag, e);
-            // Requeue = true, чтобы сообщение вернулось в очередь и мы попытались обработать его снова
-            // В сочетании с prefetchCount = 1 это остановит обработку новых сообщений до успеха
-            channel.basicNack(deliveryTag, false, true);
-            // Не пробрасываем исключение дальше, так как мы уже обработали его через Nack
+        }
+        if (!allLogOrders.isEmpty()) {
+            auditLogService.logOrders(allLogOrders);
         }
     }
 }

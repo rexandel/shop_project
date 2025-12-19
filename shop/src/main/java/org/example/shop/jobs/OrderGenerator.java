@@ -42,7 +42,7 @@ public class OrderGenerator implements CommandLineRunner {
 
         while (true) {
             try {
-                List<V1CreateOrderRequest.Order> orders = IntStream.range(0, 10)
+                List<V1CreateOrderRequest.Order> orders = IntStream.range(0, 50)
                         .mapToObj(i -> {
                             V1CreateOrderRequest.OrderItem orderItem = easyRandom.nextObject(V1CreateOrderRequest.OrderItem.class);
                             // Явно задаем поля для прохождения валидации

@@ -10,4 +10,6 @@ public class RabbitMqProperties {
     private String host;
     private int port;
     private String orderCreatedQueue;
+    private Integer batchSize = 100;
+    private Integer batchTimeoutSeconds = 1;
 }

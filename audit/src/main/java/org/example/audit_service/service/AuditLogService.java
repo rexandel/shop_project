@@ -19,4 +19,11 @@ public class AuditLogService {
         AuditLogOrder log = auditLogMapper.toEntity(logOrder);
         auditLogOrderDAO.save(log);
     }
+
+    public void logOrders(java.util.List<AuditLogOrderRequest.LogOrder> logOrders) {
+        java.util.List<AuditLogOrder> logs = logOrders.stream()
+                .map(auditLogMapper::toEntity)
+                .toList();
+        auditLogOrderDAO.saveAll(logs);
+    }
 }

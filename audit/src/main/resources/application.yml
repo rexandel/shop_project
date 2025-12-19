@@ -22,6 +22,8 @@ spring:
     username: guest
     password: guest
     orderCreatedQueue: oms.order.created
+    batchSize: 100
+    batchTimeoutSeconds: 1
     listener:
       simple:
         retry:
